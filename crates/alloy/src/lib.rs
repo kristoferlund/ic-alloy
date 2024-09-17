@@ -182,6 +182,10 @@ pub mod transports {
     #[doc(inline)]
     pub use alloy_transport_ipc as ipc;
 
+    #[cfg(feature = "transport-icp")]
+    #[doc(inline)]
+    pub use alloy_transport_icp as icp;
+
     #[cfg(feature = "transport-ws")]
     #[doc(inline)]
     pub use alloy_transport_ws as ws;

@@ -22,6 +22,13 @@ pub type ReqwestProvider<N = alloy_network::Ethereum> =
 pub type HyperProvider<N = alloy_network::Ethereum> =
     crate::RootProvider<alloy_transport_http::Http<alloy_transport_http::HyperClient>, N>;
 
+/// Type alias for a [`RootProvider`] using the [`IcpTransport`] transport.
+///
+/// [`IcpTransport`]: alloy_transport_icp::IcpTransport
+#[cfg(any(test, feature = "icp"))]
+pub type IcpProvider<N = alloy_network::Ethereum> =
+    crate::RootProvider<alloy_transport_icp::IcpTransport, N>;
+
 #[macro_use]
 extern crate tracing;
 

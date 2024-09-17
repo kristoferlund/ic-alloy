@@ -66,6 +66,7 @@ alloy-signer-local = { version = "0.3", path = "crates/signer-local", default-fe
 alloy-signer-trezor = { version = "0.3", path = "crates/signer-trezor", default-features = false }
 alloy-transport = { version = "0.3", path = "crates/transport", default-features = false }
 alloy-transport-http = { version = "0.3", path = "crates/transport-http", default-features = false }
+alloy-transport-icp = { version = "0.3", path = "crates/transport-icp", default-features = false }
 alloy-transport-ipc = { version = "0.3", path = "crates/transport-ipc", default-features = false }
 alloy-transport-ws = { version = "0.3", path = "crates/transport-ws", default-features = false }
 
@@ -115,6 +116,10 @@ tokio-test = "0.4"
 tokio-tungstenite = "0.23"
 tower = { version = "0.5", features = ["util"] }
 
+# icp
+ic-cdk = "0.16"
+candid = "0.10"
+
 # tracing
 tracing = "0.1"
 tracing-subscriber = "0.3"
@@ -146,6 +151,7 @@ serde = { version = "1.0", default-features = false, features = [
 ] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 serde_with = "3.3.0"
+serde_bytes = "0.11.15"
 
 ## misc-testing
 arbitrary = "1.3"
