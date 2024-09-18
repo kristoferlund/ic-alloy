@@ -60,16 +60,18 @@ impl<L> ClientBuilder<L> {
         self.transport(transport, is_local)
     }
 
-    /// Convenience function to create a new [`RpcClient`] with a [`IcpTransport`].
+    /// Convenience function to create a new [`RpcClient`] with an [`IcpTransport`] using
+    /// the given [`IcpConfig`] details.
     ///
     /// [`IcpTransport`]: alloy_transport_icp::IcpTransport
+    /// [`IcpConfig`]: alloy_transport_icp::IcpConfig
     #[cfg(feature = "icp")]
-    pub fn icp(self, rpc_service: alloy_transport_icp::RpcService) -> RpcClient<L::Service>
+    pub fn icp(self, config: alloy_transport_icp::IcpConfig) -> RpcClient<L::Service>
     where
         L: Layer<alloy_transport_icp::IcpTransport>,
         L::Service: Transport,
     {
-        let transport = alloy_transport_icp::IcpTransport::with_service(rpc_service);
+        let transport = alloy_transport_icp::IcpTransport::with_config(config);
         let is_local = transport.is_local();
 
         self.transport(transport, is_local)

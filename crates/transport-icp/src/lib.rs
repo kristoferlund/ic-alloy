@@ -17,7 +17,7 @@ mod evm_rpc;
 
 use alloy_json_rpc::{RequestPacket, ResponsePacket};
 use alloy_transport::{TransportError, TransportFut};
-use ic_cdk::api::call::{call_with_payment128, CallResult};
+use ic_cdk::api::call::CallResult;
 use std::task;
 use tower::Service;
 
@@ -26,22 +26,36 @@ pub use evm_rpc::*;
 const DEFAULT_CALL_CYCLES: u128 = 60_000_000_000;
 const DEFAULT_CALL_MAX_RESPONSE_SIZE: u64 = 10_000;
 
-/// Connection details for an ICP transport.
+/// Configuration details for an ICP transport.
 #[derive(Clone, Debug)]
 #[doc(hidden)]
-pub struct IcpConnect {
+pub struct IcpConfig {
     rpc_service: RpcService,
+    call_cycles: u128,
+    max_response_size: u64,
 }
 
-impl IcpConnect {
-    /// Create a new [`IcpConnect`] with the given URL.
+impl IcpConfig {
+    /// Create a new [`IcpConfig`] with the given [`RpcService`] and default values for call cycles
+    /// and max response size.
     pub const fn new(rpc_service: RpcService) -> Self {
-        Self { rpc_service }
+        Self {
+            rpc_service,
+            call_cycles: DEFAULT_CALL_CYCLES,
+            max_response_size: DEFAULT_CALL_MAX_RESPONSE_SIZE,
+        }
     }
 
-    /// Get a reference to the rpc service.
-    pub const fn rcp_service(&self) -> &RpcService {
-        &self.rpc_service
+    /// Set the call cycles for this config.
+    pub const fn call_cycles(mut self, call_cycles: u128) -> Self {
+        self.call_cycles = call_cycles;
+        self
+    }
+
+    /// Set the max response size for this config.
+    pub const fn max_response_size(mut self, max_response_size: u64) -> Self {
+        self.max_response_size = max_response_size;
+        self
     }
 }
 
@@ -52,12 +66,18 @@ impl IcpConnect {
 #[derive(Clone, Debug)]
 pub struct IcpTransport {
     rpc_service: RpcService,
+    call_cycles: u128,
+    max_response_size: u64,
 }
 
 impl IcpTransport {
-    /// Create a new [`IcpTransport`] transport with the specified [`RpcService`].
-    pub const fn with_service(rpc_service: RpcService) -> Self {
-        Self { rpc_service }
+    /// Create a new [`IcpTransport`] using the given [`IcpConfig`] details.
+    pub fn with_config(config: IcpConfig) -> Self {
+        Self {
+            rpc_service: config.rpc_service,
+            call_cycles: config.call_cycles,
+            max_response_size: config.max_response_size,
+        }
     }
 
     /// Set the [`RpcService`] for this transport.
@@ -68,6 +88,26 @@ impl IcpTransport {
     /// Get a reference to the rpc service.
     pub const fn rpc_service(&self) -> &RpcService {
         &self.rpc_service
+    }
+
+    /// Set the call cycles for this transport.
+    pub fn set_call_cycles(&mut self, call_cycles: u128) {
+        self.call_cycles = call_cycles;
+    }
+
+    /// Get the call cycles for this transport.
+    pub const fn call_cycles(&self) -> u128 {
+        self.call_cycles
+    }
+
+    /// Set the max response size for this transport.
+    pub fn set_max_response_size(&mut self, max_response_size: u64) {
+        self.max_response_size = max_response_size;
+    }
+
+    /// Get the max response size for this transport.
+    pub const fn max_response_size(&self) -> u64 {
+        self.max_response_size
     }
 
     /// Check if the transport is local. Always `false` for now.
@@ -81,6 +121,8 @@ impl IcpTransport {
     /// Make an EVM RPC request by calling the `request` method on the EVM RPC canister.
     fn request_icp(&self, request_packet: RequestPacket) -> TransportFut<'static> {
         let rpc_service = self.rpc_service.clone();
+        let max_response_size = self.max_response_size;
+        let call_cycles = self.call_cycles;
         Box::pin(async move {
             let serialized_request = request_packet.serialize().map_err(TransportError::ser_err)?;
 
@@ -88,8 +130,8 @@ impl IcpTransport {
                 .request(
                     rpc_service,
                     serialized_request.to_string(),
-                    DEFAULT_CALL_MAX_RESPONSE_SIZE,
-                    DEFAULT_CALL_CYCLES,
+                    max_response_size,
+                    call_cycles,
                 )
                 .await;
 
