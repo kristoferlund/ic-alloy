@@ -1,5 +1,5 @@
 use candid::{self, CandidType, Deserialize, Principal};
-use ic_cdk::api::call::CallResult as Result;
+use ic_cdk::api::call::{call_with_payment128, CallResult as Result};
 
 #[derive(Debug, CandidType, Deserialize, Clone)]
 pub enum EthSepoliaService {
@@ -121,11 +121,18 @@ pub struct EvmRpc(pub Principal);
 impl EvmRpc {
     pub async fn request(
         &self,
-        arg0: RpcService,
-        arg1: String,
-        arg2: u64,
+        rpc_service: RpcService,
+        payload: String,
+        max_response_size: u64,
+        call_cycles: u128,
     ) -> Result<(RequestResult,)> {
-        ic_cdk::call(self.0, "request", (arg0, arg1, arg2)).await
+        call_with_payment128(
+            self.0,
+            "request",
+            (rpc_service, payload, max_response_size),
+            call_cycles,
+        )
+        .await
     }
 }
 pub const CANISTER_ID: Principal = Principal::from_slice(&[0, 0, 0, 0, 2, 48, 0, 204, 1, 1]); // 7hfb6-caaaa-aaaar-qadga-cai

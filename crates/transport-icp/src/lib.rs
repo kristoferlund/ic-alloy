@@ -23,7 +23,8 @@ use tower::Service;
 
 pub use evm_rpc::*;
 
-const ETH_DEFAULT_CALL_CYCLES: u128 = 50_000_000_000;
+const DEFAULT_CALL_CYCLES: u128 = 60_000_000_000;
+const DEFAULT_CALL_MAX_RESPONSE_SIZE: u64 = 10_000;
 
 /// Connection details for an ICP transport.
 #[derive(Clone, Debug)]
@@ -82,13 +83,15 @@ impl IcpTransport {
         let rpc_service = self.rpc_service.clone();
         Box::pin(async move {
             let serialized_request = request_packet.serialize().map_err(TransportError::ser_err)?;
-            let call_result: CallResult<(RequestResult,)> = call_with_payment128(
-                evm_rpc::evm_rpc.0,
-                "request",
-                (rpc_service, serialized_request.to_string(), 2_000_000_u64),
-                ETH_DEFAULT_CALL_CYCLES,
-            )
-            .await;
+
+            let call_result: CallResult<(RequestResult,)> = evm_rpc
+                .request(
+                    rpc_service,
+                    serialized_request.to_string(),
+                    DEFAULT_CALL_MAX_RESPONSE_SIZE,
+                    DEFAULT_CALL_CYCLES,
+                )
+                .await;
 
             match call_result {
                 Ok((request_result,)) => match request_result {
