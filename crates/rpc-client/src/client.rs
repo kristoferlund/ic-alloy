@@ -136,6 +136,15 @@ impl<T> RpcClient<Http<T>> {
     }
 }
 
+#[cfg(feature = "icp")]
+impl RpcClient<alloy_transport_icp::IcpTransport> {
+    /// Create a new [`BatchRequest`] builder.
+    #[inline]
+    pub fn new_icp_batch(&self) -> BatchRequest<'_, alloy_transport_icp::IcpTransport> {
+        BatchRequest::new(&self.0)
+    }
+}
+
 impl<T> Deref for RpcClient<T> {
     type Target = RpcClientInner<T>;
 
