@@ -17,7 +17,7 @@ mod evm_rpc;
 
 use alloy_json_rpc::{RequestPacket, ResponsePacket};
 use alloy_transport::{TransportError, TransportFut};
-use ic_cdk::api::call::{call_with_payment128, CallResult};
+use ic_cdk::api::call::CallResult;
 use std::task;
 use tower::Service;
 
@@ -25,25 +25,6 @@ pub use evm_rpc::*;
 
 const DEFAULT_CALL_CYCLES: u128 = 60_000_000_000;
 const DEFAULT_CALL_MAX_RESPONSE_SIZE: u64 = 10_000;
-
-/// Connection details for an ICP transport.
-#[derive(Clone, Debug)]
-#[doc(hidden)]
-pub struct IcpConnect {
-    rpc_service: RpcService,
-}
-
-impl IcpConnect {
-    /// Create a new [`IcpConnect`] with the given URL.
-    pub const fn new(rpc_service: RpcService) -> Self {
-        Self { rpc_service }
-    }
-
-    /// Get a reference to the rpc service.
-    pub const fn rcp_service(&self) -> &RpcService {
-        &self.rpc_service
-    }
-}
 
 /// An ICP transport.
 ///
