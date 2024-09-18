@@ -47,13 +47,13 @@ impl IcpConfig {
     }
 
     /// Set the call cycles for this config.
-    pub const fn call_cycles(mut self, call_cycles: u128) -> Self {
+    pub const fn set_call_cycles(mut self, call_cycles: u128) -> Self {
         self.call_cycles = call_cycles;
         self
     }
 
     /// Set the max response size for this config.
-    pub const fn max_response_size(mut self, max_response_size: u64) -> Self {
+    pub const fn set_max_response_size(mut self, max_response_size: u64) -> Self {
         self.max_response_size = max_response_size;
         self
     }
