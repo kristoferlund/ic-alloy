@@ -119,7 +119,7 @@ impl IcpTransport {
     }
 
     /// Make an EVM RPC request by calling the `request` method on the EVM RPC canister.
-    fn request_icp(&self, request_packet: RequestPacket) -> TransportFut<'static> {
+    fn request(&self, request_packet: RequestPacket) -> TransportFut<'static> {
         let rpc_service = self.rpc_service.clone();
         let max_response_size = self.max_response_size;
         let call_cycles = self.call_cycles;
@@ -170,6 +170,6 @@ impl Service<RequestPacket> for IcpTransport {
 
     #[inline]
     fn call(&mut self, req: RequestPacket) -> Self::Future {
-        self.request_icp(req)
+        self.request(req)
     }
 }
