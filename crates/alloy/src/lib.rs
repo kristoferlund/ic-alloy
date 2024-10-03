@@ -155,6 +155,10 @@ pub mod signers {
     #[cfg(feature = "signer-trezor")]
     #[doc(inline)]
     pub use alloy_signer_trezor as trezor;
+
+    #[cfg(feature = "signer-icp")]
+    #[doc(inline)]
+    pub use alloy_signer_icp as icp;
 }
 
 /// Low-level Ethereum JSON-RPC transport abstraction and implementations.

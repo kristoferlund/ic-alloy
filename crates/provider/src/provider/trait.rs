@@ -1,5 +1,4 @@
 //! Ethereum JSON-RPC provider.
-
 use crate::{
     heart::PendingTransactionError,
     utils::{self, Eip1559Estimation, EstimatorFunction},
@@ -358,7 +357,13 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// # Ok(())
     /// # }
     /// ```
+    #[allow(unreachable_code)]
     async fn watch_blocks(&self) -> TransportResult<FilterPollerBuilder<T, B256>> {
+        #[cfg(feature = "icp")]
+        {
+            panic!("watch_blocks is not supported on ICP");
+        }
+
         let id = self.new_block_filter().await?;
         Ok(PollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
     }
@@ -385,7 +390,13 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// # Ok(())
     /// # }
     /// ```
+    #[allow(unreachable_code)]
     async fn watch_pending_transactions(&self) -> TransportResult<FilterPollerBuilder<T, B256>> {
+        #[cfg(feature = "icp")]
+        {
+            panic!("watch_pending_transactions is not supported on ICP");
+        }
+
         let id = self.new_pending_transactions_filter(false).await?;
         Ok(PollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
     }
@@ -418,7 +429,13 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// # Ok(())
     /// # }
     /// ```
+    #[allow(unreachable_code, unused_variables)]
     async fn watch_logs(&self, filter: &Filter) -> TransportResult<FilterPollerBuilder<T, Log>> {
+        #[cfg(feature = "icp")]
+        {
+            panic!("watch_logs is not supported on ICP");
+        }
+
         let id = self.new_filter(filter).await?;
         Ok(PollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
     }
@@ -449,9 +466,15 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// # Ok(())
     /// # }
     /// ```
+    #[allow(unreachable_code)]
     async fn watch_full_pending_transactions(
         &self,
     ) -> TransportResult<FilterPollerBuilder<T, N::TransactionResponse>> {
+        #[cfg(feature = "icp")]
+        {
+            panic!("watch_full_pending_transactions is not supported on ICP");
+        }
+
         let id = self.new_pending_transactions_filter(true).await?;
         Ok(PollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
     }
@@ -683,9 +706,15 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
         &self,
         tx: SendableTx<N>,
     ) -> TransportResult<PendingTransactionBuilder<'_, T, N>> {
-        // Make sure to initialize heartbeat before we submit transaction, so that
-        // we don't miss it if user will subscriber to it immediately after sending.
-        let _handle = self.root().get_heart();
+        // Heartbeat functionality is disabled for ICP, as it relies heavily on
+        // std::time that is not available. Plus, in a canister it is mostly
+        // not a good idea to keep the heartbeats running, as it will consume
+        // cycles and may risk the call hitting the instruction limit.
+        //
+        #[cfg(not(feature = "icp"))]
+        {
+            let _handle = self.root().get_heart();
+        }
 
         match tx {
             SendableTx::Builder(mut tx) => {
@@ -978,11 +1007,17 @@ impl<T: Transport + Clone, N: Network> Provider<T, N> for RootProvider<T, N> {
         self.inner.weak_client()
     }
 
+    #[allow(unreachable_code, unused_variables)]
     #[inline]
     async fn watch_pending_transaction(
         &self,
         config: PendingTransactionConfig,
     ) -> Result<PendingTransaction, PendingTransactionError> {
+        #[cfg(feature = "icp")]
+        {
+            panic!("watch_pending_transaction is not supported on ICP");
+        }
+
         let block_number =
             if let Some(receipt) = self.get_transaction_receipt(*config.tx_hash()).await? {
                 // The transaction is already confirmed.

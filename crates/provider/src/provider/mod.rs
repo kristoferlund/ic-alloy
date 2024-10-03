@@ -7,6 +7,7 @@ pub use root::{builder, RootProvider};
 mod sendable;
 pub use sendable::SendableTx;
 
+#[allow(unused_imports)]
 mod r#trait;
 pub use r#trait::{FilterPollerBuilder, Provider};
 

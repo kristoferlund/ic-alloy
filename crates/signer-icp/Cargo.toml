@@ -1,0 +1,29 @@
+[package]
+name = "alloy-signer-icp"
+description = "Ethereum ICP signer"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+exclude.workspace = true
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[lints]
+workspace = true
+
+[dependencies]
+alloy-consensus = { workspace = true, features = ["std"] }
+alloy-primitives.workspace = true
+alloy-signer.workspace = true
+alloy-network.workspace = true
+
+async-trait.workspace = true
+thiserror.workspace = true
+ic-cdk.workspace = true
