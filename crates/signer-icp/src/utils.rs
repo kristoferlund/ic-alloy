@@ -1,5 +1,8 @@
-use alloy_primitives::{keccak256, Address};
+use core::panic;
+
+use alloy_primitives::{keccak256, Address, B256};
 use alloy_signer::k256::{
+    ecdsa::{RecoveryId, Signature, VerifyingKey},
     elliptic_curve::{sec1::ToEncodedPoint, PublicKey},
     Secp256k1,
 };
@@ -38,15 +41,17 @@ pub async fn address_for_public_key(public_key: &[u8]) -> Result<Address, IcpSig
     Ok(Address::from_slice(&hash[12..32]))
 }
 
-/// Calculates the y_parity bit of an ETH signature
-pub const fn y_parity(signature: &[u8]) -> bool {
-    let v = signature[64]; // Will panic if signature has wrong length
-    match v {
-        27 | 28 => (v - 27) != 0,
-        _ => {
-            // For EIP-155 signatures, v = CHAIN_ID * 2 + {35,36}
-            // Y parity is determined by whether v is even or odd
-            (v % 2) != 0
+/// ...
+pub fn y_parity(hash: &B256, signature: &[u8], public_key: &Vec<u8>) -> u64 {
+    let verifying_key = VerifyingKey::from_sec1_bytes(public_key.as_slice()).unwrap();
+    let signature = Signature::try_from(signature).unwrap();
+    for parity in [0u8, 1] {
+        let recid = RecoveryId::try_from(parity).unwrap();
+        let recovered_key = VerifyingKey::recover_from_prehash(&hash.0, &signature, recid).unwrap();
+        if recovered_key == verifying_key {
+            return parity as u64;
         }
     }
+
+    panic!("Unable to recover the parity bit");
 }

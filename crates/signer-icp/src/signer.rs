@@ -112,7 +112,7 @@ impl IcpSigner {
 
         Ok(Signature::from_bytes_and_parity(
             &signature_response.signature,
-            y_parity(&signature_response.signature),
+            y_parity(hash, &signature_response.signature, &self.public_key),
         )
         .unwrap())
     }
