@@ -15,7 +15,7 @@ use alloy_primitives::{
     hex, Address, BlockHash, BlockNumber, Bytes, StorageKey, StorageValue, TxHash, B256, U128,
     U256, U64,
 };
-use alloy_rpc_client::{ClientRef, NoParams, PollerBuilder, RpcCall, WeakClient};
+use alloy_rpc_client::{ClientRef, IcpPollerBuilder, NoParams, PollerBuilder, RpcCall, WeakClient};
 use alloy_rpc_types_eth::{
     AccessListResult, BlockId, BlockNumberOrTag, EIP1186AccountProofResponse, FeeHistory, Filter,
     FilterChanges, Log, SyncStatus,
@@ -27,7 +27,14 @@ use std::borrow::Cow;
 /// A task that polls the provider with `eth_getFilterChanges`, returning a list of `R`.
 ///
 /// See [`PollerBuilder`] for more details.
+#[cfg(not(feature = "icp"))]
 pub type FilterPollerBuilder<T, R> = PollerBuilder<T, (U256,), Vec<R>>;
+
+/// A task that polls the provider with `eth_getFilterChanges`, returning a list of `R`.
+///
+/// See [`PollerBuilder`] for more details.
+#[cfg(feature = "icp")]
+pub type FilterPollerBuilder<T, R> = IcpPollerBuilder<T, (U256,), Vec<R>>;
 
 // todo: adjust docs
 // todo: reorder
@@ -357,15 +364,36 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// # Ok(())
     /// # }
     /// ```
+    #[cfg(not(feature = "icp"))]
     #[allow(unreachable_code)]
     async fn watch_blocks(&self) -> TransportResult<FilterPollerBuilder<T, B256>> {
-        #[cfg(feature = "icp")]
-        {
-            panic!("watch_blocks is not supported on ICP");
-        }
-
         let id = self.new_block_filter().await?;
         Ok(PollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
+    }
+
+    /// Watch for new blocks by polling the provider with
+    /// [`eth_getFilterChanges`](Self::get_filter_changes).
+    ///
+    /// Returns a builder that is used to configure the poller. See [`PollerBuilder`] for more
+    /// details.
+    ///
+    /// # Examples
+    ///
+    /// Get and print the next 3 blocks:
+    ///
+    /// ```no_run
+    /// let callback = |blocks| {
+    ///     for block in blocks.iter() {
+    ///         ic_cdk::println!("Block: {:?}", block);
+    ///     }
+    /// };
+    /// let poller = provider.watch_blocks().await.unwrap();
+    /// poller.with_limit(Some(3)).start(callback)?;
+    /// ```    #[cfg(feature = "icp")]
+    #[allow(unreachable_code)]
+    async fn watch_blocks(&self) -> TransportResult<FilterPollerBuilder<T, B256>> {
+        let id = self.new_block_filter().await?;
+        Ok(IcpPollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
     }
 
     /// Watch for new pending transaction by polling the provider with
@@ -390,15 +418,18 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// # Ok(())
     /// # }
     /// ```
+    #[cfg(not(feature = "icp"))]
     #[allow(unreachable_code)]
     async fn watch_pending_transactions(&self) -> TransportResult<FilterPollerBuilder<T, B256>> {
-        #[cfg(feature = "icp")]
-        {
-            panic!("watch_pending_transactions is not supported on ICP");
-        }
-
         let id = self.new_pending_transactions_filter(false).await?;
         Ok(PollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
+    }
+
+    #[cfg(feature = "icp")]
+    #[allow(unreachable_code)]
+    async fn watch_pending_transactions(&self) -> TransportResult<FilterPollerBuilder<T, B256>> {
+        let id = self.new_pending_transactions_filter(false).await?;
+        Ok(IcpPollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
     }
 
     /// Watch for new logs using the given filter by polling the provider with
@@ -430,14 +461,19 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// # }
     /// ```
     #[allow(unreachable_code, unused_variables)]
+    #[cfg(not(feature = "icp"))]
     async fn watch_logs(&self, filter: &Filter) -> TransportResult<FilterPollerBuilder<T, Log>> {
-        #[cfg(feature = "icp")]
-        {
-            panic!("watch_logs is not supported on ICP");
-        }
-
         let id = self.new_filter(filter).await?;
         Ok(PollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
+    }
+
+    #[allow(unreachable_code, unused_variables)]
+    #[cfg(feature = "icp")]
+    async fn watch_logs(&self, filter: &Filter) -> TransportResult<FilterPollerBuilder<T, Log>> {
+        use alloy_rpc_client::IcpPollerBuilder;
+
+        let id = self.new_filter(filter).await?;
+        Ok(IcpPollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
     }
 
     /// Watch for new pending transaction bodies by polling the provider with
@@ -466,19 +502,23 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// # Ok(())
     /// # }
     /// ```
+    #[cfg(not(feature = "icp"))]
     #[allow(unreachable_code)]
     async fn watch_full_pending_transactions(
         &self,
     ) -> TransportResult<FilterPollerBuilder<T, N::TransactionResponse>> {
-        #[cfg(feature = "icp")]
-        {
-            panic!("watch_full_pending_transactions is not supported on ICP");
-        }
-
         let id = self.new_pending_transactions_filter(true).await?;
         Ok(PollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
     }
 
+    #[cfg(feature = "icp")]
+    #[allow(unreachable_code)]
+    async fn watch_full_pending_transactions(
+        &self,
+    ) -> TransportResult<FilterPollerBuilder<T, N::TransactionResponse>> {
+        let id = self.new_pending_transactions_filter(true).await?;
+        Ok(IcpPollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
+    }
     /// Get a list of values that have been added since the last poll.
     ///
     /// The return value depends on what stream `id` corresponds to.

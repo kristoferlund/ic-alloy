@@ -27,7 +27,7 @@ futures.workspace = true
 pin-project.workspace = true
 serde_json.workspace = true
 serde.workspace = true
-tokio = { workspace = true, features = ["sync"] }
+tokio = { workspace = true, features = ["sync", "time"] }
 tokio-stream = { workspace = true, features = ["sync"] }
 tower.workspace = true
 tracing.workspace = true
@@ -42,6 +42,8 @@ hyper-util = { workspace = true, optional = true }
 
 url = { workspace = true, optional = true }
 
+ic-cdk-timers = { workspace = true, optional = true }
+ic-cdk = { workspace = true, optional = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 alloy-transport-ipc = { workspace = true, optional = true }
@@ -56,10 +58,10 @@ tempfile = "3"
 futures-util.workspace = true
 
 [features]
+icp = ["alloy-transport-icp", "dep:ic-cdk-timers", "dep:ic-cdk"]
 default = ["reqwest"]
 reqwest = ["dep:url", "dep:reqwest", "alloy-transport-http/reqwest"]
 hyper = ["dep:url", "dep:hyper-util", "alloy-transport-http/hyper"]
-icp = ["alloy-transport-icp"]
 pubsub = ["dep:alloy-pubsub", "dep:alloy-primitives"]
 ws = ["pubsub", "dep:alloy-transport-ws", "dep:url"]
 ipc = ["pubsub", "dep:alloy-transport-ipc"]
