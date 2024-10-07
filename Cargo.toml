@@ -110,8 +110,8 @@ tokio = "1"
 tokio-util = "0.7"
 tokio-stream = "0.1"
 rustls = { version = "0.23", default-features = false, features = [
-    "std",
-    "tls12",
+  "std",
+  "tls12",
 ] }
 tokio-test = "0.4"
 tokio-tungstenite = "0.23"
@@ -120,6 +120,7 @@ tower = { version = "0.5", features = ["util"] }
 # icp
 ic-cdk = "0.16"
 candid = "0.10"
+ic-cdk-timers = "0.10"
 
 # tracing
 tracing = "0.1"
@@ -147,8 +148,8 @@ derive_more = { version = "1.0.0", default-features = false }
 
 ## serde
 serde = { version = "1.0", default-features = false, features = [
-    "derive",
-    "alloc",
+  "derive",
+  "alloc",
 ] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 serde_with = "3.3.0"
