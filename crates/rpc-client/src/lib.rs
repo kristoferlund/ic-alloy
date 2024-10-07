@@ -42,3 +42,6 @@ pub type ReqwestClient = RpcClient<alloy_transport_http::ReqwestTransport>;
 /// [`IcpTransport`]: alloy_transport_icp::IcpTransport
 #[cfg(feature = "icp")]
 pub type IcpClient = RpcClient<alloy_transport_icp::IcpTransport>;
+
+mod icp_poller;
+pub use icp_poller::IcpPollerBuilder;
