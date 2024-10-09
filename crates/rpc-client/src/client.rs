@@ -1,6 +1,7 @@
 use crate::{poller::PollerBuilder, BatchRequest, ClientBuilder, RpcCall};
 use alloy_json_rpc::{Id, Request, RpcParam, RpcReturn};
 use alloy_transport::{BoxTransport, Transport};
+#[allow(unused_imports)]
 use alloy_transport_http::Http;
 use std::{
     borrow::Cow,

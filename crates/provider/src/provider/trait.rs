@@ -365,7 +365,6 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// # }
     /// ```
     #[cfg(not(feature = "icp"))]
-    #[allow(unreachable_code)]
     async fn watch_blocks(&self) -> TransportResult<FilterPollerBuilder<T, B256>> {
         let id = self.new_block_filter().await?;
         Ok(PollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
@@ -382,15 +381,22 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// Get and print the next 3 blocks:
     ///
     /// ```no_run
-    /// let callback = |blocks| {
-    ///     for block in blocks.iter() {
-    ///         ic_cdk::println!("Block: {:?}", block);
-    ///     }
-    /// };
-    /// let poller = provider.watch_blocks().await.unwrap();
-    /// poller.with_limit(Some(3)).start(callback)?;
-    /// ```    #[cfg(feature = "icp")]
-    #[allow(unreachable_code)]
+    ///     let callback = |incoming_blocks: Vec<FixedBytes<32>>| {
+    ///         STATE.with_borrow_mut(|state| {
+    ///             for block in incoming_blocks.iter() {
+    ///                 ic_cdk::println!("{block:?}")
+    ///             }
+    ///         })
+    ///     };
+    ///
+    ///     let poller = provider.watch_blocks().await.unwrap();
+    ///     let timer_id = poller
+    ///         .with_limit(Some(10))
+    ///         .with_poll_interval(Duration::from_secs(5))
+    ///         .start(callback)
+    ///         .unwrap();
+    /// ```
+    #[cfg(feature = "icp")]
     async fn watch_blocks(&self) -> TransportResult<FilterPollerBuilder<T, B256>> {
         let id = self.new_block_filter().await?;
         Ok(IcpPollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
@@ -419,14 +425,17 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// # }
     /// ```
     #[cfg(not(feature = "icp"))]
-    #[allow(unreachable_code)]
     async fn watch_pending_transactions(&self) -> TransportResult<FilterPollerBuilder<T, B256>> {
         let id = self.new_pending_transactions_filter(false).await?;
         Ok(PollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
     }
 
+    /// Watch for new pending transaction by polling the provider with
+    /// [`eth_getFilterChanges`](Self::get_filter_changes).
+    ///
+    /// Returns a builder that is used to configure the poller. See [`PollerBuilder`] for more
+    /// details.
     #[cfg(feature = "icp")]
-    #[allow(unreachable_code)]
     async fn watch_pending_transactions(&self) -> TransportResult<FilterPollerBuilder<T, B256>> {
         let id = self.new_pending_transactions_filter(false).await?;
         Ok(IcpPollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
@@ -460,14 +469,61 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// # Ok(())
     /// # }
     /// ```
-    #[allow(unreachable_code, unused_variables)]
     #[cfg(not(feature = "icp"))]
     async fn watch_logs(&self, filter: &Filter) -> TransportResult<FilterPollerBuilder<T, Log>> {
         let id = self.new_filter(filter).await?;
         Ok(PollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
     }
 
-    #[allow(unreachable_code, unused_variables)]
+    /// Watch for new logs using the given filter by polling the provider with
+    /// [`eth_getFilterChanges`](Self::get_filter_changes).
+    ///
+    /// Returns a builder that is used to configure the poller. See [`PollerBuilder`] for more
+    /// details.
+    ///
+    /// # Examples
+    ///
+    /// Get the next 5 USDC transfer logs:
+    ///
+    /// ```no_run
+    /// sol!(
+    ///     #[allow(missing_docs)]
+    ///     #[sol(abi)]
+    ///     USDC,
+    ///     "abi/USDC.json" // Path to contract ABI
+    /// );
+    ///
+    /// let config = IcpConfig::new(rpc_service).set_max_response_size(100_000);
+    /// let provider = ProviderBuilder::new().on_icp(config);
+    ///
+    /// // This callback will be called every time new logs are received
+    /// let callback = |incoming_logs: Vec<Log>| {
+    ///     for log in incoming_logs.iter() {
+    ///         let transfer: Log<USDC::Transfer> = log.log_decode().unwrap();
+    ///         let USDC::Transfer { from, to, value } = transfer.data();
+    ///         ic_cdk::println!("{from:?} -> {to:?}, value: {value:?}");
+    ///     }
+    /// };
+    ///
+    /// let usdt_token_address = address!("833589fcd6edb6e08f4c7c32d4f71b54bda02913");
+    /// let filter = Filter::new()
+    ///     .address(usdt_token_address)
+    ///     // By specifying an `event` or `event_signature` we listen for a specific event of the
+    ///     // contract. In this case the `Transfer(address,address,uint256)` event.
+    ///     .event(Transfer::SIGNATURE)
+    ///     .from_block(BlockNumberOrTag::Latest);
+    ///
+    /// // Initialize the poller and start watching
+    /// // `with_limit` (optional) is used to limit the number of times to poll, defaults to 3
+    /// // `with_poll_interval` (optional) is used to set the interval between polls, defaults to 7 seconds
+    /// let poller = provider.watch_logs(&filter).await.unwrap();
+    /// let timer_id = poller
+    ///     .with_limit(Some(POLL_LIMIT))
+    ///     .with_poll_interval(Duration::from_secs(10))
+    ///     .start(callback)
+    ///     .unwrap();
+    ///
+    /// ```
     #[cfg(feature = "icp")]
     async fn watch_logs(&self, filter: &Filter) -> TransportResult<FilterPollerBuilder<T, Log>> {
         use alloy_rpc_client::IcpPollerBuilder;
@@ -503,7 +559,6 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
     /// # }
     /// ```
     #[cfg(not(feature = "icp"))]
-    #[allow(unreachable_code)]
     async fn watch_full_pending_transactions(
         &self,
     ) -> TransportResult<FilterPollerBuilder<T, N::TransactionResponse>> {
@@ -511,8 +566,18 @@ pub trait Provider<T: Transport + Clone = BoxTransport, N: Network = Ethereum>:
         Ok(PollerBuilder::new(self.weak_client(), "eth_getFilterChanges", (id,)))
     }
 
+    /// Watch for new pending transaction bodies by polling the provider with
+    /// [`eth_getFilterChanges`](Self::get_filter_changes).
+    ///
+    /// Returns a builder that is used to configure the poller. See [`PollerBuilder`] for more
+    /// details.
+    ///
+    /// # Support
+    ///
+    /// This endpoint might not be supported by all clients.
+    ///
+    /// ```
     #[cfg(feature = "icp")]
-    #[allow(unreachable_code)]
     async fn watch_full_pending_transactions(
         &self,
     ) -> TransportResult<FilterPollerBuilder<T, N::TransactionResponse>> {

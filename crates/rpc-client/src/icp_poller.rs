@@ -17,7 +17,41 @@ use std::{
 
 use crate::WeakClient;
 
-/// ...
+/// A poller task builder for ICP.
+///
+/// This builder is used to create a poller task that repeatedly polls a method on a client and
+/// invokes a callback with the responses. By default, this is done every 10 seconds, with no
+/// limit on the number of successful polls. This is all configurable.
+///
+/// # Examples
+///
+/// Poll `eth_blockNumber` every 5 seconds for 10 times:
+///
+/// ```no_run
+/// #[ic_cdk::update]
+/// async fn example() -> Result<(), String> {
+///
+///     let config = IcpConfig::new(rpc_service);
+///     let provider = ProviderBuilder::new().on_icp(config);
+///
+///     let callback = |incoming_blocks: Vec<FixedBytes<32>>| {
+///         STATE.with_borrow_mut(|state| {
+///             for block in incoming_blocks.iter() {
+///                 ic_cdk::println!("{block:?}")
+///             }
+///         })
+///     };
+///
+///     let poller = provider.watch_blocks().await.unwrap();
+///     let timer_id = poller
+///         .with_limit(Some(10))
+///         .with_poll_interval(Duration::from_secs(5))
+///         .start(callback)
+///         .unwrap();
+///
+///     Ok(())
+/// }
+/// ```
 #[derive(Debug)]
 pub struct IcpPollerBuilder<Conn, Params, Resp> {
     client: WeakClient<Conn>,
@@ -86,7 +120,7 @@ where
         self
     }
 
-    /// ...
+    /// Starts the poller with the given response handler.
     pub fn start<F>(mut self, response_handler: F) -> Result<TimerId, String>
     where
         F: FnMut(Resp) + Send + Sync + 'static,
@@ -121,7 +155,6 @@ where
                             }
                         };
 
-                        ic_cdk::println!("RPC request");
                         let result = client.request(method, params).await;
 
                         match result {
@@ -161,14 +194,14 @@ where
         Ok(id)
     }
 
-    /// ...
+    /// Stop the poller before the limit is reached.
     pub fn stop(&mut self) {
         if let Some(timer_id) = self.timer_id.take() {
             ic_cdk_timers::clear_timer(timer_id);
         }
     }
 
-    /// ...
+    /// `into_stream` is not supported for ICP canisters.
     #[allow(unreachable_code)]
     pub fn into_stream(self) -> impl Stream<Item = Resp> + Unpin {
         panic!("Streams cannot be used ICP canisters.");
