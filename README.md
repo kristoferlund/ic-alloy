@@ -1,3 +1,11 @@
+> [!IMPORTANT]
+>
+> The fork of Alloy with ICP support lives on the [icp branch](https://github.com/kristoferlund/ic-alloy/tree/icp). To use the ICP enabled fork in your project, add this to `Cargo.toml`:
+>
+> ```toml
+> alloy = { path = "https://github.com/kristoferlund/ic-alloy.git", default-features = false, branch = "icp", features = ["icp"]}
+> ```
+
 # Alloy
 
 Alloy connects applications to blockchains.
@@ -105,7 +113,6 @@ This repository contains the following crates:
 [`alloy-transport-http`]: https://github.com/alloy-rs/alloy/tree/main/crates/transport-http
 [`alloy-transport-ipc`]: https://github.com/alloy-rs/alloy/tree/main/crates/transport-ipc
 [`alloy-transport-ws`]: https://github.com/alloy-rs/alloy/tree/main/crates/transport-ws
-
 [publish-subscribe]: https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern
 [AWS KMS]: https://aws.amazon.com/kms
 [GCP KMS]: https://cloud.google.com/kms
