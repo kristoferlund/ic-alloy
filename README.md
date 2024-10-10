@@ -1,4 +1,4 @@
-> ![IMPORTANT]
+> [!IMPORTANT]
 > This is a fork of the original `alloy` repository that adds support for the [Internet Computer](https://internetcomputer.org) (ICP). The original repository can be found [here](https://github.com/alloy-rs).
 >
 > See [ICP Notes](#icp-notes) for more information.
@@ -161,13 +161,13 @@ The ICP signer uses [Threshold ECDSA](https://internetcomputer.org/docs/current/
 
 ### Alloy packages modified
 
-#### `provider`
+#### [`provider`](crates/provider)
 
 - Adds the `on_icp()` function to build a provider using an `IcpTransport` with the given `IcpConfig`.
 - Adapts the `watch_x` functions to work with the ICP poller.
 - `watch_pending_transactions` is not available on ICP as it relies on heartbeat functionality not yet implemented
 
-#### `rpc-client`
+#### [`rpc-client`](crates/rpc-client)
 
 - Adds the `icp()` function to the `ClientBuilder`, a convenience function to create a new `RpcClient` with an `IcpTransport` using the given `IcpConfig` details.
 - Adapts the `new_batch()` function to support `IcpTransport` for batch requests.
@@ -175,7 +175,7 @@ The ICP signer uses [Threshold ECDSA](https://internetcomputer.org/docs/current/
 - Adds the `IcpClient` type that maps to `IcpTransport`
   - `pub type IcpClient = RpcClient<alloy_transport_icp::IcpTransport>;`
 
-### Installation
+### ICP Alloy Installation
 
 To use the ICP enabled fork in your project, add this to `Cargo.toml`:
 
