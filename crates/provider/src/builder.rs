@@ -345,6 +345,21 @@ impl<L, F, N> ProviderBuilder<L, F, N> {
         self.on_client(client)
     }
 
+    /// Build this provider using an [`IcpTransport`] with the given [`IcpConfig`].
+    ///
+    /// [`IcpTransport`]: alloy_transport_icp::IcpTransport
+    /// [`IcpConfig`]: alloy_transport_icp::IcpConfig
+    #[cfg(any(test, feature = "icp"))]
+    pub fn on_icp(self, config: alloy_transport_icp::IcpConfig) -> F::Provider
+    where
+        L: ProviderLayer<crate::IcpProvider<N>, alloy_transport_icp::IcpTransport, N>,
+        F: TxFiller<N> + ProviderLayer<L::Provider, alloy_transport_icp::IcpTransport, N>,
+        N: Network,
+    {
+        let client = ClientBuilder::default().icp(config);
+        self.on_client(client)
+    }
+
     /// Build this provider with an Hyper HTTP transport.
     #[cfg(feature = "hyper")]
     pub fn on_hyper_http(self, url: url::Url) -> F::Provider

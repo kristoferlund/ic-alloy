@@ -33,6 +33,7 @@ pub trait Spawnable {
     ///
     /// In WASM this will be a `wasm-bindgen-futures::spawn_local` call, while
     /// in native it will be a `tokio::spawn` call.
+    /// in the IC it will be a `ic_cdk::spawn` call.
     fn spawn_task(self);
 }
 
@@ -57,5 +58,15 @@ where
 
         #[cfg(feature = "wasm-bindgen")]
         wasm_bindgen_futures::spawn_local(self);
+    }
+}
+
+#[cfg(all(target_arch = "wasm32", feature = "icp"))]
+impl<T> Spawnable for T
+where
+    T: Future<Output = ()> + 'static,
+{
+    fn spawn_task(self) {
+        ic_cdk::spawn(self);
     }
 }

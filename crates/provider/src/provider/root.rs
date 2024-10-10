@@ -114,8 +114,14 @@ impl<T: Transport + Clone, N: Network> RootProvider<T, N> {
         self.inner.client.transport()
     }
 
+    #[allow(unreachable_code)]
     #[inline]
     pub(crate) fn get_heart(&self) -> &HeartbeatHandle {
+        #[cfg(feature = "icp")]
+        {
+            panic!("get_heart is not implemented for ICP")
+        }
+
         self.inner.heart.get_or_init(|| {
             let poller: ChainStreamPoller<T, N> =
                 ChainStreamPoller::from_weak_client(self.inner.weak_client());

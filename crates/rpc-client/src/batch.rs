@@ -173,8 +173,7 @@ where
 
         let fut = transport.call(req);
         self.set(Self::AwaitingResponse { channels, fut });
-        cx.waker().wake_by_ref();
-        Poll::Pending
+        self.poll(cx)
     }
 
     fn poll_awaiting_response(

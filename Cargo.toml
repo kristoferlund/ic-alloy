@@ -64,8 +64,10 @@ alloy-signer-gcp = { version = "0.3", path = "crates/signer-gcp", default-featur
 alloy-signer-ledger = { version = "0.3", path = "crates/signer-ledger", default-features = false }
 alloy-signer-local = { version = "0.3", path = "crates/signer-local", default-features = false }
 alloy-signer-trezor = { version = "0.3", path = "crates/signer-trezor", default-features = false }
+alloy-signer-icp = { version = "0.3", path = "crates/signer-icp", default-features = false }
 alloy-transport = { version = "0.3", path = "crates/transport", default-features = false }
 alloy-transport-http = { version = "0.3", path = "crates/transport-http", default-features = false }
+alloy-transport-icp = { version = "0.3", path = "crates/transport-icp", default-features = false }
 alloy-transport-ipc = { version = "0.3", path = "crates/transport-ipc", default-features = false }
 alloy-transport-ws = { version = "0.3", path = "crates/transport-ws", default-features = false }
 
@@ -108,12 +110,17 @@ tokio = "1"
 tokio-util = "0.7"
 tokio-stream = "0.1"
 rustls = { version = "0.23", default-features = false, features = [
-    "std",
-    "tls12",
+  "std",
+  "tls12",
 ] }
 tokio-test = "0.4"
 tokio-tungstenite = "0.23"
 tower = { version = "0.5", features = ["util"] }
+
+# icp
+ic-cdk = "0.16"
+candid = "0.10"
+ic-cdk-timers = "0.10"
 
 # tracing
 tracing = "0.1"
@@ -141,11 +148,12 @@ derive_more = { version = "1.0.0", default-features = false }
 
 ## serde
 serde = { version = "1.0", default-features = false, features = [
-    "derive",
-    "alloc",
+  "derive",
+  "alloc",
 ] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 serde_with = "3.3.0"
+serde_bytes = "0.11.15"
 
 ## misc-testing
 arbitrary = "1.3"

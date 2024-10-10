@@ -1,6 +1,7 @@
 use crate::{poller::PollerBuilder, BatchRequest, ClientBuilder, RpcCall};
 use alloy_json_rpc::{Id, Request, RpcParam, RpcReturn};
 use alloy_transport::{BoxTransport, Transport};
+#[allow(unused_imports)]
 use alloy_transport_http::Http;
 use std::{
     borrow::Cow,
@@ -128,10 +129,20 @@ impl<T: Transport + Clone> RpcClient<T> {
     }
 }
 
+#[cfg(not(feature = "icp"))]
 impl<T> RpcClient<Http<T>> {
     /// Create a new [`BatchRequest`] builder.
     #[inline]
     pub fn new_batch(&self) -> BatchRequest<'_, Http<T>> {
+        BatchRequest::new(&self.0)
+    }
+}
+
+#[cfg(feature = "icp")]
+impl RpcClient<alloy_transport_icp::IcpTransport> {
+    /// Create a new [`BatchRequest`] builder.
+    #[inline]
+    pub fn new_batch(&self) -> BatchRequest<'_, alloy_transport_icp::IcpTransport> {
         BatchRequest::new(&self.0)
     }
 }

@@ -21,6 +21,11 @@ We also have a [book](https://alloy.rs/) on all things Alloy and many [examples]
 [telegram-badge]: https://img.shields.io/endpoint?color=neon&style=for-the-badge&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fethers_rs
 [telegram-url]: https://t.me/ethers_rs
 
+> ![IMPORTANT]
+> This is a fork of the original `alloy` repository with support for the [Internet Computer](https://internetcomputer.org) – ICP. The original repository can be found [here](https://github.com/alloy-rs).
+>
+> See [ICP Notes](#icp-notes) for more information.
+
 ## Installation
 
 Alloy consists of a number of crates that provide a range of functionality essential for interfacing with any Ethereum-based blockchain.
@@ -74,9 +79,11 @@ This repository contains the following crates:
   - [`alloy-signer-ledger`] - [Ledger] signer implementation
   - [`alloy-signer-local`] - Local (private key, keystore, mnemonic, YubiHSM) signer implementations
   - [`alloy-signer-trezor`] - [Trezor] signer implementation
+  - [`alloy-signer-icp`] - ICP signer implementation
 - [`alloy-transport`] - Low-level Ethereum JSON-RPC transport abstraction
   - [`alloy-transport-http`] - HTTP transport implementation
   - [`alloy-transport-ipc`] - IPC transport implementation
+  - [`alloy-transport-icp`] - ICP transport implementation
   - [`alloy-transport-ws`] - WS transport implementation
 
 [`alloy`]: https://github.com/alloy-rs/alloy/tree/main/crates/alloy
@@ -109,9 +116,11 @@ This repository contains the following crates:
 [`alloy-signer-ledger`]: https://github.com/alloy-rs/alloy/tree/main/crates/signer-ledger
 [`alloy-signer-local`]: https://github.com/alloy-rs/alloy/tree/main/crates/signer-local
 [`alloy-signer-trezor`]: https://github.com/alloy-rs/alloy/tree/main/crates/signer-trezor
+[`alloy-signer-icp`]: https://github.com/kristoferlund/ic-alloy/tree/main/crates/signer-icp
 [`alloy-transport`]: https://github.com/alloy-rs/alloy/tree/main/crates/transport
 [`alloy-transport-http`]: https://github.com/alloy-rs/alloy/tree/main/crates/transport-http
 [`alloy-transport-ipc`]: https://github.com/alloy-rs/alloy/tree/main/crates/transport-ipc
+[`alloy-transport-icp`]: https://github.com/kristoferlund/ic-alloy/tree/main/crates/transport-icp
 [`alloy-transport-ws`]: https://github.com/alloy-rs/alloy/tree/main/crates/transport-ws
 [publish-subscribe]: https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern
 [AWS KMS]: https://aws.amazon.com/kms
@@ -139,6 +148,15 @@ support 1.56).
 
 Note that the MSRV is not increased automatically, and only as part of a patch
 (pre-1.0) or minor (post-1.0) release.
+
+## ICP Notes
+
+This fork of the `alloy` repository adds support for the [Internet Computer](https://internetcomputer.org) – ICP.
+
+The following changes have been made:
+
+- Feature: icp
+- 
 
 ## Contributing
 
