@@ -3,7 +3,7 @@
 > The fork of Alloy with ICP support lives on the [icp branch](https://github.com/kristoferlund/ic-alloy/tree/icp). To use the ICP enabled fork in your project, add this to `Cargo.toml`:
 >
 > ```toml
-> alloy = { path = "https://github.com/kristoferlund/ic-alloy.git", default-features = false, branch = "icp", features = ["icp"]}
+> alloy = { git = "https://github.com/kristoferlund/ic-alloy.git", default-features = false, branch = "icp", features = ["icp"]}
 > ```
 
 # Alloy
