@@ -2,6 +2,8 @@
 > This is a fork of the original `alloy` repository that adds support for the [Internet Computer](https://internetcomputer.org) (ICP). The original repository can be found [here](https://github.com/alloy-rs).
 >
 > See [ICP Notes](#icp-notes) for more information.
+>
+> For demos on how to use the ICP adaption of Alloy, see [ic-alloy-toolkit](https://github.com/kristoferlund/ic-alloy-toolkit)
 
 # Alloy
 
@@ -180,7 +182,7 @@ The ICP signer uses [Threshold ECDSA](https://internetcomputer.org/docs/current/
 To use the ICP enabled fork in your project, add this to `Cargo.toml`:
 
 ```toml
-alloy = { path = "https://github.com/kristoferlund/ic-alloy.git", default-features = false, branch = "icp", features = ["icp"]}
+alloy = { git = "https://github.com/kristoferlund/ic-alloy.git", default-features = false, branch = "icp", features = ["icp"]}
 ```
 
 To use the `sol!()` macro, add the following crate features:
