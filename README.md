@@ -5,6 +5,8 @@
 > ```toml
 > alloy = { git = "https://github.com/kristoferlund/ic-alloy.git", default-features = false, branch = "icp", features = ["icp"]}
 > ```
+>
+> Read more about `ic-alloy` on [the icp branch](https://github.com/kristoferlund/ic-alloy/tree/icp?tab=readme-ov-file#icp-notes)
 
 # Alloy
 
